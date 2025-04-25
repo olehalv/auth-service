@@ -1,6 +1,10 @@
 package main
 
-import "os"
+import (
+	"context"
+	"fmt"
+	"net/http"
+)
 
 type LoginRequest struct {
 	Email    string `json:"email"`
@@ -16,18 +20,27 @@ type UserResponse struct {
 	Email string `json:"email"`
 }
 
-var users []LoginRequest
+var userExists = func(user LoginRequest, r *http.Request) bool {
+	var email string
+	var pass string
 
-var userExists = func(user LoginRequest) bool {
-	users = append(users, LoginRequest{
-		Email:    os.Getenv("ADMIN_EMAIL"),
-		Password: os.Getenv("ADMIN_PASS")},
-	)
+	err := psql.QueryRow(
+		context.Background(),
+		fmt.Sprintf(
+			"select * from users u where u.email = '%s' and u.password = '%s'",
+			user.Email,
+			user.Password,
+		),
+	).Scan(&email, &pass)
 
-	for _, tU := range users {
-		if user.Email == tU.Email && user.Password == tU.Password {
-			return true
-		}
+	if err != nil {
+		Log(fmt.Sprintf("%s: %s", getIp(r), err))
+		return false
 	}
-	return false
+
+	if &email == nil || &pass == nil {
+		return false
+	}
+
+	return true
 }

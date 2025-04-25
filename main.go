@@ -12,17 +12,19 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		Log(err)
-		return
+		LogFatal(err)
 	}
 
+	initializePostgres()
 	staticHandler()
 	authRouter()
 
-	port := os.Getenv("PORT")
-	fmt.Println(fmt.Sprintf("Starting server on port %s", port))
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+	host := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+
+	Log(fmt.Sprintf("Starting server with %s", host))
+
+	err = http.ListenAndServe(host, nil)
 	if err != nil {
-		Log(err)
+		LogFatal(err)
 	}
 }
