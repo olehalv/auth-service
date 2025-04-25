@@ -1,4 +1,4 @@
-# olehalv-auth-service
+# auth-service
 En enkel Go Web Applikasjon som bygger, serverer og verfiserer JWTs basert på email/password hentet fra en PostgreSQL database.
 
 ## Quickstart
