@@ -25,7 +25,7 @@ Det finnes 2 api endepunkter for autoriserings og henting av brukerinformasjon. 
 ### api
 
 - `/api/auth` - Krever JSON-body med `{email: string; pass: string}`, returnerer `{returnUrl: string; token: string}`
-- `/api/user` - Fungerer som et endepunkt for å hente brukerinformasjon samt autorisering. Krever Bearer Authorization Header med JWT. Returnerer `{email: string}`
+- `/api/user` - Fungerer som et endepunkt for å hente brukerinformasjon samt å autorisere forespørsler. Krever Bearer Authorization Header med JWT. Returnerer `{email: string}`
 
 ### static
 
