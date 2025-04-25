@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>User</title>
+</head>
+<body>
+<code id="user"></code>
+<button id="logout">Logout</button>
+<script>
+  (async () => {
+    const token = sessionStorage.getItem("token")
+    if (token == null) {
+      location.href = "/index.html"
+    } else {
+      const res = await fetch("/api/user", {
+        headers: [["Authorization", `Bearer ${token}`]]
+      })
+      if (res.ok) {
+        document.getElementById("user").innerText = JSON.stringify(await res.json())
+      } else {
+        location.href = "/index.html"
+      }
+    }
+  })()
+
+  document.getElementById("logout").addEventListener("click", () => {
+      sessionStorage.removeItem("token")
+      location.href = "index.html"
+  })
+</script>
+</body>
+</html>

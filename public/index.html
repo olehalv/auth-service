@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+</head>
+<body>
+<form id="form">
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required>
+    <label for="pass">Password:</label>
+    <input type="password" name="pass" id="pass" required>
+    <button type="submit">Login</button>
+</form>
+<p id="error"></p>
+<script>
+    const tokenFromSS = sessionStorage.getItem("token")
+
+    if (tokenFromSS != null) {
+        location.href = "/user.html"
+    }
+
+    let email = "", pass = ""
+
+    document.getElementById("email").addEventListener("input", (e) => email = e.target.value)
+    document.getElementById("pass").addEventListener("input", (e) => pass = e.target.value)
+
+    const form = document.getElementById("form")
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const res = await fetch("/api/auth", {
+            method: "POST",
+            headers: [["Content-Type", "application/json"]],
+            body: JSON.stringify({email, pass}),
+        })
+
+        if (res.ok) {
+            const json = await res.json()
+            const token = json["token"]
+            const returnUrl = json["returnUrl"]
+            sessionStorage.setItem("token", token)
+            if (returnUrl === "" || returnUrl.includes("localhost")) {
+                location.href = "user.html"
+            }
+        } else {
+            document.getElementById("error").innerText = "Either the email or password is wrong, or there has occured an internal server error"
+            sessionStorage.removeItem("token")
+        }
+    })
+</script>
+</body>
+</html>
