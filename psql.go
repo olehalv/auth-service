@@ -8,7 +8,7 @@ import (
 
 var psql *pgx.Conn
 
-func initializePostgres() {
+func initPsql() {
 	var err error
 	psql, err = pgx.Connect(context.Background(), os.Getenv("PSQL_URL"))
 

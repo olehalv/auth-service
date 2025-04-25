@@ -15,7 +15,7 @@ func main() {
 		LogFatal(err)
 	}
 
-	initializePostgres()
+	initPsql()
 	staticHandler()
 	authRouter()
 
