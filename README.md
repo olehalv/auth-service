@@ -1,5 +1,5 @@
 # olehalv-auth-service
-En enkel Go Web Applikasjon som bygger, serverer og verfiserer JWTs basert på email/password hentet fra en PostgresSQL database.
+En enkel Go Web Applikasjon som bygger, serverer og verfiserer JWTs basert på email/password hentet fra en PostgreSQL database.
 
 ## Quickstart
 Kompiler applikasjonen med `go build` og kjør executable. Eller kjør den ukompilert med `go run .`
@@ -15,6 +15,9 @@ Applikasjonen krever følgene .env variables
 - JWT_ISSUER
 - PSQL_URL
 - MAX_HTTP_REQUESTS_PER_MINUTE
+
+## DB migrering
+Alt av DB migrering ligger under `migrations/`, men er ikke satt opp til å migrere automatisk, dette må gjøres manuelt
 
 ## Endepunkter
 Det finnes 2 api endepunkter for autoriserings og henting av brukerinformasjon. I tillegg er det 2 .html sider hvor man kan logge inn og se brukerinformasjon
