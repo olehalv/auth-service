@@ -10,11 +10,6 @@ import (
 	"os"
 )
 
-var rootUser = LoginRequest{
-	Email:    "root",
-	Password: "",
-}
-
 func main() {
 	clearConsole()
 

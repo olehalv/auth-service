@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-var psql *pgx.Conn
-
 func initPsql() {
 	var err error
 	psql, err = pgx.Connect(context.Background(), os.Getenv("PSQL_URL"))

@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-var secret = []byte(os.Getenv("JWT_SECRET"))
-
 func auth(w http.ResponseWriter, r *http.Request) {
 	var user LoginRequest
 
@@ -34,7 +32,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 		"exp": time.Now().Add(time.Hour).Unix(),
 	})
 
-	tokenString, err := token.SignedString(secret)
+	tokenString, err := token.SignedString(jwtSecret)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusInternalServerError, "Could not sign token", err)
@@ -73,7 +71,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	token, err := jwt.Parse(
 		authHeader,
 		func(token *jwt.Token) (interface{}, error) {
-			return secret, nil
+			return jwtSecret, nil
 		},
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
 	)

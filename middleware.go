@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-var requests []Request
-
 func preventSpam(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()

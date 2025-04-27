@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -70,8 +69,6 @@ func getIp(r *http.Request) string {
 	}
 	return ip
 }
-
-var logger = log.New(os.Stdout, "-> ", log.Ldate|log.Ltime)
 
 func Log(any any) {
 	logger.Println(any)
