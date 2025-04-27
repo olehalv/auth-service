@@ -24,12 +24,11 @@ func main() {
 	}
 
 	initPsql()
-	staticHandler()
 	authRouter()
 
 	host := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 
-	Log(fmt.Sprintf("Starting server with %s", host))
+	Log(fmt.Sprintf("Starting server with %s", fmt.Sprintf("http://%s", host)))
 
 	h := sha512.New()
 	h.Write([]byte(uuid.NewString()))
