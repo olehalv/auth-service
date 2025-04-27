@@ -1,17 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 )
-
-type Request struct {
-	Ip   string
-	Time time.Time
-}
 
 var requests []Request
 
@@ -21,11 +17,13 @@ func preventSpam(f http.HandlerFunc) http.HandlerFunc {
 		ip := getIp(r)
 
 		var filtered []Request
+
 		for _, req := range requests {
 			if req.Time.After(now.Add(-1 * time.Minute)) {
 				filtered = append(filtered, req)
 			}
 		}
+
 		requests = filtered
 
 		requests = append(requests, Request{
@@ -34,6 +32,7 @@ func preventSpam(f http.HandlerFunc) http.HandlerFunc {
 		})
 
 		var count int
+
 		for _, req := range requests {
 			if req.Ip == ip {
 				count++
@@ -41,14 +40,14 @@ func preventSpam(f http.HandlerFunc) http.HandlerFunc {
 		}
 
 		attempts, err := strconv.Atoi(os.Getenv("MAX_HTTP_REQUESTS_PER_MINUTE"))
+
 		if err != nil {
-			Log(err)
+			returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
 			return
 		}
 
 		if count > attempts {
-			w.WriteHeader(http.StatusTooManyRequests)
-			Log(fmt.Sprintf("%s: Reached maximum HTTP requests per minute", ip))
+			returnHttpStatus(w, r, http.StatusTooManyRequests, "Too many requests", errors.New(fmt.Sprintf("%s: Reached maximum HTTP requests per minute", ip)))
 			return
 		}
 
