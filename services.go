@@ -21,7 +21,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !userExists(user) {
+	if !authUser(user) {
 		returnHttpStatus(w, r, http.StatusUnauthorized, "Wrong username or password", err)
 		return
 	}
@@ -149,11 +149,15 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userExists(LoginRequest{
-		Email: user.Email,
-		Pass:  user.Pass,
-	}) {
+	if userExists(user.Email) {
 		returnHttpStatus(w, r, http.StatusConflict, "User with email already exists", nil)
+		return
+	}
+
+	pass, err := hashString(user.Pass)
+
+	if err != nil {
+		returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 
@@ -161,7 +165,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		context.Background(),
 		"insert into users (email, password, created, lastLoggedIn) values ($1, $2, $3, $3)",
 		user.Email,
-		user.Pass,
+		pass,
 		time.Now(),
 	)
 

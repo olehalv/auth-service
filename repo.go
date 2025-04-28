@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -20,16 +21,38 @@ func setLastLoggedIn(email string) error {
 	return nil
 }
 
-func userExists(user LoginRequest) bool {
-	var email string
+func authUser(user LoginRequest) bool {
+	var pass string
+
+	err := psql.QueryRow(
+		context.Background(),
+		"select password from users where email = $1",
+		user.Email,
+	).Scan(&pass)
+
+	if &pass == nil || err != nil {
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(user.Pass))
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func userExists(email string) bool {
+	var _email string
 
 	err := psql.QueryRow(
 		context.Background(),
 		"select email from users where email = $1",
-		user.Email,
-	).Scan(&email)
+		email,
+	).Scan(&_email)
 
-	if &email == nil || err != nil {
+	if &_email == nil || err != nil {
 		return false
 	}
 

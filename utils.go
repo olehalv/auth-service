@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
 	"os"
@@ -51,4 +52,14 @@ func Log(any any) {
 
 func LogFatal(any any) {
 	logger.Fatalln(any)
+}
+
+func hashString(value string) (string, error) {
+	pass, err := bcrypt.GenerateFromPassword([]byte(value), bcrypt.DefaultCost)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(pass), nil
 }
