@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,34 +17,6 @@ func clearConsole() {
 		cmd.Stdout = os.Stdout
 		_ = cmd.Run()
 	}
-}
-
-var userExists = func(user LoginRequest, r *http.Request) bool {
-	if user == rootUser {
-		return true
-	}
-
-	var email string
-	var pass string
-
-	err := psql.QueryRow(
-		context.Background(),
-		fmt.Sprintf(
-			"select * from users u where u.email = '%s'",
-			user.Email,
-		),
-	).Scan(&email, &pass)
-
-	if err != nil {
-		Log(fmt.Sprintf("%s: %s", getIp(r), err))
-		return false
-	}
-
-	if &email == nil || &pass == nil {
-		return false
-	}
-
-	return true
 }
 
 func decodeJSON(r io.Reader, v any) error {

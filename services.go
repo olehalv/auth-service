@@ -21,8 +21,8 @@ func auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !userExists(user, r) {
-		returnHttpStatus(w, r, http.StatusUnauthorized, "Wrong username or password", nil)
+	if !userExists(user) {
+		returnHttpStatus(w, r, http.StatusUnauthorized, "Wrong username or password", err)
 		return
 	}
 
@@ -53,6 +53,13 @@ func auth(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusInternalServerError, "Could not return token", err)
+		return
+	}
+
+	err = setLastLoggedIn(user.Email)
+
+	if err != nil {
+		returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 }
@@ -100,7 +107,14 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(UserResponse{Email: sub})
+	user, err := getUserDetails(sub)
+
+	if err != nil {
+		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
+		return
+	}
+
+	res, err := json.Marshal(user)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
@@ -130,29 +144,21 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userExists(user, r) {
+	if userExists(user) {
 		returnHttpStatus(w, r, http.StatusConflict, "User with email already exists", nil)
 		return
 	}
 
 	row, err := psql.Query(
 		context.Background(),
-		fmt.Sprintf(
-			"insert into users (email, password) values ('%s', '%s')",
-			user.Email,
-			user.Password,
-		),
+		"insert into users (email, password, created, lastLoggedIn) values ($1, $2, $3, $3)",
+		user.Email,
+		user.Password,
+		time.Now(),
 	)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusInternalServerError, "Could not create user, try again later", err)
-		return
-	}
-
-	err = row.Err()
-
-	if err != nil {
-		returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 

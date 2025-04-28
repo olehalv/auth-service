@@ -17,8 +17,10 @@ type AuthResponse struct {
 	Token     string `json:"token"`
 }
 
-type UserResponse struct {
-	Email string `json:"email"`
+type UserDetailsResponse struct {
+	Email        string `json:"email"`
+	Created      string `json:"created"`
+	LastLoggedIn string `json:"lastLoggedIn"`
 }
 
 type HttpStatusResponse struct {

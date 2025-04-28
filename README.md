@@ -21,7 +21,7 @@ Alt av DB migrering ligger under `migrations/`, men er ikke satt opp til å migr
 
 Eksempel: `flyway migrate -url="jdbc:postgresql://localhost:5432/DB_NAME" -user="USER" -password="PASS" -locations="filesystem:./migrations"`
 
-### api
+## api
 
 - `POST: /api/auth` - Krever JSON-body med `{email: string; pass: string}`, returnerer `{returnUrl: string; token: string}`
 - `GET: /api/user` - Fungerer som et endepunkt for å hente brukerinformasjon samt å autorisere forespørsler. Krever Bearer Authorization Header med JWT. Returnerer `{email: string}`
