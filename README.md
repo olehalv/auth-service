@@ -17,6 +17,9 @@ Applikasjonen krever følgene .env variables
 - MAX_HTTP_REQUESTS_PER_MINUTE
 - INV_CODE
 
+## HTTPS/TLS
+Applikasjonen krever at du har en localhost.pem og localhost-key.pem for å kunne starte serverer med HTTPS/TLS
+
 ## DB migrering
 Alt av DB migrering ligger under `migrations/`, men er ikke satt opp til å migrere automatisk, dette må gjøres manuelt med verktøy som flyway
 
