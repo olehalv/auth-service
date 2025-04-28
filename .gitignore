@@ -2,3 +2,4 @@ auth-service
 auth-service.iml
 .idea
 .env
+*.pem

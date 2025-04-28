@@ -48,9 +48,9 @@ func main() {
 
 	host := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 
-	Log(fmt.Sprintf("URL: %s", fmt.Sprintf("http://%s", host)))
+	Log(fmt.Sprintf("URL: %s", fmt.Sprintf("https://%s", host)))
 
-	err = http.ListenAndServe(host, cors.AllowAll().Handler(mux))
+	err = http.ListenAndServeTLS(host, "localhost.pem", "localhost-key.pem", cors.AllowAll().Handler(mux))
 	if err != nil {
 		LogFatal(err)
 	}
