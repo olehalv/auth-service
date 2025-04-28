@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"net/http"
 	"os"
 )
@@ -17,7 +18,9 @@ func main() {
 
 	initPsql()
 
-	http.HandleFunc("/api/auth", preventSpam(func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/api/auth", preventSpam(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
 			auth(w, r)
@@ -28,7 +31,7 @@ func main() {
 		}
 	}))
 
-	http.HandleFunc("/api/user", preventSpam(func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/user", preventSpam(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			getUser(w, r)
@@ -47,7 +50,7 @@ func main() {
 
 	Log(fmt.Sprintf("URL: %s", fmt.Sprintf("http://%s", host)))
 
-	err = http.ListenAndServe(host, nil)
+	err = http.ListenAndServe(host, cors.AllowAll().Handler(mux))
 	if err != nil {
 		LogFatal(err)
 	}
