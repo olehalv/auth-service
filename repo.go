@@ -21,10 +21,6 @@ func setLastLoggedIn(email string) error {
 }
 
 func userExists(user LoginRequest) bool {
-	if user == rootUser {
-		return true
-	}
-
 	var email string
 
 	err := psql.QueryRow(

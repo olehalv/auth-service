@@ -27,7 +27,11 @@ func returnHttpStatus(w http.ResponseWriter, r *http.Request, status int, messag
 	w.WriteHeader(status)
 	res, _ := json.Marshal(HttpStatusResponse{Message: message})
 	_, _ = w.Write(res)
-	Log(fmt.Sprintf("%s: %s -> INTERNAL ERROR: %s", getIp(r), message, error))
+	if error != nil {
+		Log(fmt.Sprintf("%s: %s -> INTERNAL ERROR: %s", getIp(r), message, error))
+	} else {
+		Log(fmt.Sprintf("%s: %s", getIp(r), message))
+	}
 }
 
 func getIp(r *http.Request) string {

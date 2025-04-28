@@ -15,6 +15,7 @@ Applikasjonen krever følgene .env variables
 - JWT_ISSUER
 - PSQL_URL
 - MAX_HTTP_REQUESTS_PER_MINUTE
+- INV_CODE
 
 ## DB migrering
 Alt av DB migrering ligger under `migrations/`, men er ikke satt opp til å migrere automatisk, dette må gjøres manuelt med verktøy som flyway

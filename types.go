@@ -8,8 +8,14 @@ type Request struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"pass"`
+	Email string `json:"email"`
+	Pass  string `json:"pass"`
+}
+
+type RegisterRequest struct {
+	Email   string `json:"email"`
+	Pass    string `json:"pass"`
+	InvCode string `json:"invCode"`
 }
 
 type AuthResponse struct {

@@ -130,7 +130,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
-	var user LoginRequest
+	var user RegisterRequest
 
 	err := decodeJSON(r.Body, &user)
 
@@ -139,12 +139,20 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Email == "" || user.Password == "" {
-		returnHttpStatus(w, r, http.StatusBadRequest, "Please provide email:pass", nil)
+	if user.Email == "" || user.Pass == "" || user.InvCode == "" {
+		returnHttpStatus(w, r, http.StatusBadRequest, "Please provide email, pass and invitation code", nil)
 		return
 	}
 
-	if userExists(user) {
+	if user.InvCode != os.Getenv("INV_CODE") {
+		returnHttpStatus(w, r, http.StatusBadRequest, "Wrong invitation code", nil)
+		return
+	}
+
+	if userExists(LoginRequest{
+		Email: user.Email,
+		Pass:  user.Pass,
+	}) {
 		returnHttpStatus(w, r, http.StatusConflict, "User with email already exists", nil)
 		return
 	}
@@ -153,7 +161,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		context.Background(),
 		"insert into users (email, password, created, lastLoggedIn) values ($1, $2, $3, $3)",
 		user.Email,
-		user.Password,
+		user.Pass,
 		time.Now(),
 	)
 
