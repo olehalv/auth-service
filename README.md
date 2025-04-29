@@ -1,12 +1,15 @@
 # auth-service
+
 En enkel Go Web Applikasjon som bygger, serverer og verfiserer JWTs basert på email/password hentet fra en PostgreSQL database
 
 ## Quickstart
+
 Kompiler applikasjonen med `go build` og kjør executable. Eller kjør den ukompilert med `go run .`
 
 Web applikasjonen lytter på `{HOST}:{PORT}`
 
 ## .env
+
 Applikasjonen krever følgene .env variables
 
 - HOST
@@ -18,9 +21,11 @@ Applikasjonen krever følgene .env variables
 - INV_CODE
 
 ## HTTPS/TLS
+
 Applikasjonen krever at du har en localhost.pem og localhost-key.pem for å kunne starte serverer med HTTPS/TLS
 
 ## DB migrering
+
 Alt av DB migrering ligger under `migrations/`, men er ikke satt opp til å migrere automatisk, dette må gjøres manuelt med verktøy som flyway
 
 Eksempel: `flyway migrate -url="jdbc:postgresql://localhost:5432/DB_NAME" -user="USER" -password="PASS" -locations="filesystem:./migrations"`
