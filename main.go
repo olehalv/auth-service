@@ -19,10 +19,6 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	ui := http.FileServer(http.Dir("ui/dist"))
-
-	mux.Handle("/", ui)
-
 	mux.HandleFunc("/api/auth", preventSpam(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
@@ -46,6 +42,7 @@ func main() {
 			returnHttpStatus(w, r, http.StatusMethodNotAllowed, "Method not allowed", nil)
 			break
 		}
+
 	}))
 
 	host := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
