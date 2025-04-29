@@ -4,17 +4,16 @@ auth-service.iml
 *.pem
 
 logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+ui/*.log
+ui/npm-debug.log*
+ui/yarn-debug.log*
+ui/yarn-error.log*
+ui/pnpm-debug.log*
+ui/lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
-*.local
+ui/dist
+ui/dist-ssr
 
 .vscode/*
 !.vscode/extensions.json
