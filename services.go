@@ -7,14 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
 func auth(w http.ResponseWriter, r *http.Request) {
+	var oneHourFromNow = time.Now().Add(time.Hour)
 	var user LoginRequest
 
-	err := decodeJSON(r.Body, &user)
+	err := decodeJsonBody(r.Body, &user)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusBadRequest, "Bad JSON", err)
@@ -27,9 +27,9 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss": os.Getenv("JWT_ISSUER"),
+		"iss": "auth-service",
 		"sub": user.Email,
-		"exp": time.Now().Add(time.Hour).Unix(),
+		"exp": oneHourFromNow.Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)
@@ -39,56 +39,73 @@ func auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(AuthResponse{
-		ReturnUrl: r.Header.Get("Referer"),
-		Token:     tokenString,
-	})
-
-	if err != nil {
-		returnHttpStatus(w, r, http.StatusInternalServerError, "Could not return token", err)
-		return
-	}
-
-	_, err = w.Write(res)
-
-	if err != nil {
-		returnHttpStatus(w, r, http.StatusInternalServerError, "Could not return token", err)
-		return
-	}
-
 	err = setLastLoggedIn(user.Email)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
+
+	cookie := http.Cookie{
+		Name:     cookieName,
+		Value:    tokenString,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+		Expires:  oneHourFromNow,
+	}
+
+	http.SetCookie(w, &cookie)
+
+	res, _ := json.Marshal(AuthResponse{
+		ReturnUrl: r.Header.Get("Referer"),
+		Token:     tokenString,
+	})
+
+	_, _ = w.Write(res)
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	parts := strings.Split(authHeader, " ")
+	var reqBodyToken string
+	err := decodeJsonBody(r.Body, &reqBodyToken)
+	cookieToken, err1 := r.Cookie(cookieName)
 
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", nil)
+	if err != nil && err1 != nil {
+		returnHttpStatus(w, r, http.StatusBadRequest, "No token provided (cookie or body)", err)
 		return
 	}
 
-	authHeader = parts[1]
+	var token *jwt.Token
 
-	token, err := jwt.Parse(
-		authHeader,
-		func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
-		},
-		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
-	)
+	if &cookieToken != nil {
+		token, err = jwt.Parse(
+			cookieToken.Value,
+			func(token *jwt.Token) (interface{}, error) {
+				return jwtSecret, nil
+			},
+			jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+		)
 
-	if err != nil {
-		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
-		return
+		if err != nil {
+			returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
+			return
+		}
+	} else {
+		token, err = jwt.Parse(
+			reqBodyToken,
+			func(token *jwt.Token) (interface{}, error) {
+				return jwtSecret, nil
+			},
+			jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+		)
+
+		if err != nil {
+			returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
+			return
+		}
 	}
 
-	sub, err := token.Claims.GetSubject()
+	email, err := token.Claims.GetSubject()
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
@@ -102,12 +119,12 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if iss != os.Getenv("JWT_ISSUER") {
+	if iss != "auth-service" {
 		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", nil)
 		return
 	}
 
-	user, err := getUserDetails(sub)
+	user, err := getUserDetails(email)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusBadRequest, "Bad authentication token", err)
@@ -132,7 +149,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var user RegisterRequest
 
-	err := decodeJSON(r.Body, &user)
+	err := decodeJsonBody(r.Body, &user)
 
 	if err != nil {
 		returnHttpStatus(w, r, http.StatusBadRequest, "Bad JSON", err)

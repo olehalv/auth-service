@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
 	"net/http"
 	"os"
 )
@@ -50,7 +49,8 @@ func main() {
 
 	Log(fmt.Sprintf("URL: %s", fmt.Sprintf("https://%s", host)))
 
-	err = http.ListenAndServeTLS(host, "localhost.pem", "localhost-key.pem", cors.AllowAll().Handler(mux))
+	err = http.ListenAndServeTLS(host, "localhost.pem", "localhost-key.pem", http.Handler(mux))
+
 	if err != nil {
 		LogFatal(err)
 	}
