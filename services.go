@@ -58,8 +58,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	res, _ := json.Marshal(AuthResponse{
-		ReturnUrl: r.Header.Get("Referer"),
-		Token:     tokenString,
+		Token: tokenString,
 	})
 
 	_, _ = w.Write(res)

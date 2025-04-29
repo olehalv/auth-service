@@ -19,8 +19,7 @@ type RegisterRequest struct {
 }
 
 type AuthResponse struct {
-	ReturnUrl string `json:"returnUrl"`
-	Token     string `json:"token"`
+	Token string `json:"token"`
 }
 
 type UserDetailsResponse struct {
